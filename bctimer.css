@@ -1,0 +1,23 @@
+.bctimer {
+    border: 2px solid black;
+    position: relative;
+    border-radius: 100000px;
+}
+
+.bctimer-leftblocker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 100% 50%;
+    border-top-left-radius: 100000px;
+    border-bottom-left-radius: 100000px;
+}
+
+.bctimer-rightblocker {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform-origin: 0 50%;
+    border-top-right-radius: 100000px;
+    border-bottom-right-radius: 100000px;
+}
