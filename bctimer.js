@@ -1,17 +1,19 @@
 (function ($)
 {
     $.fn.bctimer = function(options)
-    {
-        var opts = $.extend({}, $.fn.bctimer.defaults, options);
-         
+    {    
         var $this = this;
+        
+        var opts = null;
         var leftBlocker = null;
         var rightBlocker = null;
         var rotationDegrees = 0;
         var backgroundIndex = 0;
-         
+        
+        //This is the first time bctimer is being called on the object
         if(!$this.hasClass("bctimer"))
         {
+            opts = $.extend({}, $.fn.bctimer.defaults, options);
             $this.addClass("bctimer")
                 .css("width", opts.size)
                 .css("height", opts.size)
@@ -37,19 +39,34 @@
              
             $this.append(leftBlocker).append(rightBlocker);
              
-            $this.data("colors", opts.colors);
+            $this.data("options", opts);
         }
+        //The object is already a bctimer
         else
         {
-            $this.data("stopped", true);
-            leftBlocker = $this.find(".bctimer-leftblocker");
-            rightBlocker = $this.find(".bctimer-rightblocker");
-            opts.colors = $this.data("colors");
+            opts = $.extend({}, $this.data("options"), options);
+            console.log(opts);
+            clearInterval($this.data("interval"));
+            
+            leftBlocker = $this.find(".bctimer-leftblocker").css("background-color", opts.colors[opts.colors.length-1]);
+            rightBlocker = $this.find(".bctimer-rightblocker").css("background-color", opts.colors[opts.colors.length-1]);
+            $this.css("background-color", opts.colors[0]);
+        }
+         
+        function rotateTo(blocker, angle)
+        {
+            blocker.css({
+                "-webkit-transform" : "rotate(" + angle + "deg)",
+                "-moz-transform"    : "rotate(" + angle + "deg)",
+                "-ms-transform"     : "rotate(" + angle + "deg)",
+                "-o-transform"      : "rotate(" + angle + "deg)",
+                "transform"         : "rotate(" + angle + "deg)"
+            });
         }
          
         function rotate()
         {
-        console.log("rotate");
+
             if(rotationDegrees >= 359)
             {
                 rotationDegrees = rotationDegrees % 359;
@@ -62,62 +79,25 @@
                 }
                 $this.css("background-color", opts.colors[backgroundIndex]);
                  
-                leftBlocker.css({
-                    "-webkit-transform" : "rotate(0deg)",
-                    "-moz-transform"    : "rotate(0deg)",
-                    "-ms-transform"     : "rotate(0deg)",
-                    "-o-transform"      : "rotate(0deg)",
-                    "transform"         : "rotate(0deg)"
-                });
-                
-                rightBlocker.css({
-                    "-webkit-transform" : "rotate(" + rotationDegrees + "deg)",
-                    "-moz-transform"    : "rotate(" + rotationDegrees + "deg)",
-                    "-ms-transform"     : "rotate(" + rotationDegrees + "deg)",
-                    "-o-transform"      : "rotate(" + rotationDegrees + "deg)",
-                    "transform"         : "rotate(" + rotationDegrees + "deg)"
-                });
+                rotateTo(leftBlocker, 0);
+                rotateTo(rightBlocker, rotationDegrees);
             }
              
             else if(rotationDegrees > 179)
             {
-                leftBlocker.css({
-                    "-webkit-transform" : "rotate(" + (rotationDegrees - 180) + "deg)",
-                    "-moz-transform"    : "rotate(" + (rotationDegrees - 180) + "deg)",
-                    "-ms-transform"     : "rotate(" + (rotationDegrees - 180) + "deg)",
-                    "-o-transform"      : "rotate(" + (rotationDegrees - 180) + "deg)",
-                    "transform"         : "rotate(" + (rotationDegrees - 180) + "deg)" 
-                });
+                rotateTo(leftBlocker, rotationDegrees - 180);
+                rotateTo(rightBlocker, 0);
                 
-                rightBlocker.css({
-                    "-webkit-transform" : "rotate(0deg)",
-                    "-moz-transform"    : "rotate(0deg)",
-                    "-ms-transform"     : "rotate(0deg)",
-                    "-o-transform"      : "rotate(0deg)",
-                    "transform"         : "rotate(0deg)"
-                });
                 rightBlocker.css("background-color", opts.colors[backgroundIndex]);
             }
             else
             {
-                leftBlocker.css({
-                    "-webkit-transform" : "rotate(0deg)",
-                    "-moz-transform"    : "rotate(0deg)",
-                    "-ms-transform"     : "rotate(0deg)",
-                    "-o-transform"      : "rotate(0deg)",
-                    "transform"         : "rotate(0deg)"
-                });
-                rightBlocker.css({
-                    "-webkit-transform" : "rotate(" + rotationDegrees + "deg)",
-                    "-moz-transform"    : "rotate(" + rotationDegrees + "deg)",
-                    "-ms-transform"     : "rotate(" + rotationDegrees + "deg)",
-                    "-o-transform"      : "rotate(" + rotationDegrees + "deg)",
-                    "transform"         : "rotate(" + rotationDegrees + "deg)"
-                });
+                rotateTo(leftBlocker, 0);
+                rotateTo(rightBlocker, rotationDegrees);
                 //console.log(backgroundIndex);
                 if(backgroundIndex == 0)
                 {
-                   rightBlocker.css("background-color", opts.colors[opts.colors.length-1]);
+                   rightBlocker.css("background-color", opts.colors[opts.colors.length - 1]);
                 }
                 else
                 {
@@ -128,17 +108,13 @@
          
         if(opts.mode === "spinner")
         {
-            $this.data("stopped", false);
             var step = 360 / (opts.cycleLength / opts.updateInterval);
             function spin() {
                 rotationDegrees += step;
                 rotate();
-                if(!$this.data("stopped"))
-                {
-                    setTimeout(spin, opts.updateInterval);
-                }
             }
-            setTimeout(spin, opts.updateInterval);
+
+            $this.data("interval", setInterval(spin, opts.updateInterval));
         }
         else if(opts.mode === "progress")
         {
@@ -147,7 +123,7 @@
                 console.error("Progress must be a value between 0 and 1 inclusive");
                 return;
             }
-            rotationDegrees = 360 * opts.progress;
+            rotationDegrees = 359 * opts.progress;
             rotate();
         }
     }
@@ -161,5 +137,3 @@
         progress: 0, //between 0 and 1, only used for progress mode
     }
 }(jQuery));
-
-$(".bctimer").bctimer({updateInterval: 100, cycleLength: 20000});
