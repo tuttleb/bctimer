@@ -1,0 +1,25 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>bctimer</title>
+  <meta name="description" content="bctimer demo page">
+  <meta name="author" content="Brett Tuttle">
+
+  <link rel="stylesheet" href="bctimer.css">
+</head>
+
+<body>
+  <div id="myDiv"></div>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="bctimer.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#myDiv').bctimer({colors:['red','green','blue']});
+    });
+  </script>
+</body>
+</html>
