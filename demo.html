@@ -12,13 +12,30 @@
 </head>
 
 <body>
-  <div id="myDiv"></div>
+  <div id="demo1"></div>
+  $('#demo1').bctimer();
+  <hr>
+  <div id="demo2"></div>
+  $('#demo2').bctimer({colors:['red','#000000','green','blue','#FFFFFF'], cycleLength: 500});
+  <hr>
+  <div id="demo3"></div>
+  $('#demo3').bctimer({size:250, mode: "manual", value: "66%"});
+  <br>Or<br>
+  $('#demo3').bctimer({size:250, mode: "manual"}); $('#demo3').bctimer({value: "66%"});
+  <hr>
+  <div id="demo4"></div>
+  $('#demo4').bctimer({size:8});
+  <p>(IE11 struggles with this size, but in Chrome and Firefox it looks decent)</p>
+  
 
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="bctimer.js"></script>
   <script>
     $(document).ready(function() {
-      $('#myDiv').bctimer({colors:['red','green','blue']});
+      $('#demo1').bctimer();
+      $('#demo2').bctimer({colors:['red','#000000','green','blue','#FFFFFF'], cycleLength: 500});
+      $('#demo3').bctimer({size:250, mode: "manual", value: "66%"});
+      $('#demo4').bctimer({size:8});
     });
   </script>
 </body>

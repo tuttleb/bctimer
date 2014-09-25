@@ -38,21 +38,24 @@
             leftBlocker.addClass("bctimer-leftblocker");
              
             $this.append(leftBlocker).append(rightBlocker);
-             
-            $this.data("options", opts);
         }
         //The object is already a bctimer
         else
         {
             opts = $.extend({}, $this.data("options"), options);
-            console.log(opts);
             clearInterval($this.data("interval"));
             
             leftBlocker = $this.find(".bctimer-leftblocker").css("background-color", opts.colors[opts.colors.length-1]);
             rightBlocker = $this.find(".bctimer-rightblocker").css("background-color", opts.colors[opts.colors.length-1]);
             $this.css("background-color", opts.colors[0]);
         }
-         
+        
+        $this.data("options", opts);
+        
+        /**********************************************
+        * Helper functions and objects
+        **********************************************/
+        
         function rotateTo(blocker, angle)
         {
             blocker.css({
@@ -66,10 +69,9 @@
          
         function rotate()
         {
-
-            if(rotationDegrees >= 359)
+            if(rotationDegrees >= 360)
             {
-                rotationDegrees = rotationDegrees % 359;
+                rotationDegrees = rotationDegrees % 360;
                 leftBlocker.css("background-color", opts.colors[backgroundIndex]);
                 rightBlocker.css("background-color", opts.colors[backgroundIndex]);
                 backgroundIndex++;
@@ -83,7 +85,7 @@
                 rotateTo(rightBlocker, rotationDegrees);
             }
              
-            else if(rotationDegrees > 179)
+            else if(rotationDegrees >= 180)
             {
                 rotateTo(leftBlocker, rotationDegrees - 180);
                 rotateTo(rightBlocker, 0);
@@ -105,7 +107,16 @@
                 }
             }             
         }
-         
+        
+        function radToDeg(rad)
+        {
+            return rad * 180 / Math.PI;
+        }
+        
+        /***************************************
+        * Implementation of modes
+        ***************************************/
+        
         if(opts.mode === "spinner")
         {
             var step = 360 / (opts.cycleLength / opts.updateInterval);
@@ -116,24 +127,43 @@
 
             $this.data("interval", setInterval(spin, opts.updateInterval));
         }
-        else if(opts.mode === "progress")
+        else if(opts.mode === "manual")
         {
-            if(typeof(opts.progress) !== "number" || opts.progress > 1 || opts.progress < 0)
+            if(/deg/.test(opts.value))
             {
-                console.error("Progress must be a value between 0 and 1 inclusive");
-                return;
+                rotationDegrees = parseFloat(opts.value.replace("deg", ""));
             }
-            rotationDegrees = 359 * opts.progress;
+            else if(/rad/.test(opts.value))
+            {
+                rotationDegrees = radToDeg(parseFloat(opts.value.replace("rad", "")));
+            }
+            else if(/%/.test(opts.value))
+            {
+                rotationDegrees = 3.60 * parseFloat(opts.value.replace("%", ""));
+            }
+            else
+            {
+                console.error("Invalid 'value' provided: " + opts.value); 
+            }
+
             rotate();
         }
+        
+        return $this;
     }
           
     $.fn.bctimer.defaults = {
-        mode: "spinner", // countdown | progress
+        mode: "spinner", // countdown(not implemented) | manual | spinner
         size: "100px",
         colors: ["black", "white"],
         updateInterval: 30, //milliseconds between each update
         cycleLength: 5000, //milliseconds for a complete rotation
-        progress: 0, //between 0 and 1, only used for progress mode
+        value: "0deg", //value used in manual mode. ex: "
+        /*
+        donut: {
+            size: 0,
+            color: "white",
+        },
+        center: "percentage", // degrees | radians | text:value | time*/
     }
 }(jQuery));
