@@ -3,7 +3,7 @@
 bctimer is a jQuery plugin that was created with the intent of using css3 rotations to make spinning countdown timers similar to those before old movies. So far it cannot be used as a timer at all, but implemented features include:
 - spinner mode (a loading spinner for example)
 - manual mode allows the fill to be set using degrees, radians, or percentage
-- multiple colors so that the color increments with each revolution (*This doesn't work quite right in manual mode*)
+- multiple colors so that the color increments with each revolution
 - Differing update and revolution rate
 - Choose the size of the bctimer whether it is 8px or hundreds of pixels (*Resizing after creation is not currently possible*)
 

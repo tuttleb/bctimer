@@ -1,156 +1,178 @@
-(function ($)
+/* bctimer
+ * Brett Tuttle
+ * A jQuery plugin to create loading spinners, progress bars, and countdown timers. It acts similar to the countdown
+ * timers at the start of old fashioned movies.
+ *
+ * For example usage see
+ *  https://github.com/tuttleb/bctimer
+ *  Specifically look at the demo.html file.
+ *
+ */
+;(function ($, window, document, undefined)
 {
+    function radToDeg(rad)
+    {
+        return rad * 180 / Math.PI;
+    }
+
+    var Blocker;
+    Blocker = function (options, container) {
+        this.$element = $("<div>")
+            .width(container.width() / 2)
+            .height(container.height());
+        this.setColor(options.colors[options.colors.length - 1]);
+    };
+
+    Blocker.prototype.rotateTo = function(angle) {
+        this.$element.css({
+            "-webkit-transform" : "rotate(" + angle + "deg)",
+            "-moz-transform"    : "rotate(" + angle + "deg)",
+            "-ms-transform"     : "rotate(" + angle + "deg)",
+            "-o-transform"      : "rotate(" + angle + "deg)",
+            "transform"         : "rotate(" + angle + "deg)"
+        });
+    };
+
+    Blocker.prototype.setColor = function(color) {
+        this.$element.css("background-color", color);
+    };
+
     $.fn.bctimer = function(options)
-    {    
-        var $this = this;
-        
-        var opts = null;
-        var leftBlocker = null;
-        var rightBlocker = null;
-        var rotationDegrees = 0;
-        var backgroundIndex = 0;
-        
-        //This is the first time bctimer is being called on the object
-        if(!$this.hasClass("bctimer"))
-        {
-            opts = $.extend({}, $.fn.bctimer.defaults, options);
-            $this.addClass("bctimer")
-                .css("width", opts.size)
-                .css("height", opts.size)
-                .css("background-color", opts.colors[0]);
-             
-            $this.css({
-                        "-webkit-transform" : "rotate(0deg)",
-                        "-moz-transform"    : "rotate(0deg)",
-                        "-ms-transform"     : "rotate(0deg)",
-                        "-o-transform"      : "rotate(0deg)",
-                        "transform"         : "rotate(0deg)"
-            });
-             
-            leftBlocker = $("<div>")
-                .width($this.width()/2)
-                .height($this.height())
-                .css("background-color", opts.colors[opts.colors.length-1]);
-             
-            rightBlocker = leftBlocker.clone()
-                .addClass("bctimer-rightblocker")
-             
-            leftBlocker.addClass("bctimer-leftblocker");
-             
-            $this.append(leftBlocker).append(rightBlocker);
-        }
-        //The object is already a bctimer
-        else
-        {
-            opts = $.extend({}, $this.data("options"), options);
-            clearInterval($this.data("interval"));
-            
-            leftBlocker = $this.find(".bctimer-leftblocker").css("background-color", opts.colors[opts.colors.length-1]);
-            rightBlocker = $this.find(".bctimer-rightblocker").css("background-color", opts.colors[opts.colors.length-1]);
-            $this.css("background-color", opts.colors[0]);
-        }
-        
-        $this.data("options", opts);
-        
-        /**********************************************
-        * Helper functions and objects
-        **********************************************/
-        
-        function rotateTo(blocker, angle)
-        {
-            blocker.css({
-                "-webkit-transform" : "rotate(" + angle + "deg)",
-                "-moz-transform"    : "rotate(" + angle + "deg)",
-                "-ms-transform"     : "rotate(" + angle + "deg)",
-                "-o-transform"      : "rotate(" + angle + "deg)",
-                "transform"         : "rotate(" + angle + "deg)"
-            });
-        }
-         
-        function rotate()
-        {
-            if(rotationDegrees >= 360)
+    {
+        this.each(function() {
+
+            var $this = $(this);
+
+            var opts,
+            leftBlocker,
+            rightBlocker,
+            rotationDegrees = 0,
+            backgroundIndex = 0;
+
+            //This is the first time bctimer is being called on the object
+            if (!$this.data("bctimerdata")) {
+                opts = $.extend({}, $.fn.bctimer.defaults, options);
+                $this.addClass("bctimer")
+                    .css({
+                        "width": opts.size,
+                        "height": opts.size,
+                        "background-color": opts.colors[0]
+                    });
+
+                $this.css({
+                    "-webkit-transform": "rotate(0deg)",
+                    "-moz-transform": "rotate(0deg)",
+                    "-ms-transform": "rotate(0deg)",
+                    "-o-transform": "rotate(0deg)",
+                    "transform": "rotate(0deg)"
+                });
+
+                leftBlocker = new Blocker(opts, $this);
+                rightBlocker = new Blocker(opts, $this);
+
+                leftBlocker.$element.addClass("bctimer-leftblocker");
+                rightBlocker.$element.addClass("bctimer-rightblocker");
+
+                $this.append(leftBlocker.$element).append(rightBlocker.$element);
+
+                $this.data("bctimerdata", {
+                    leftBlocker: leftBlocker,
+                    rightBlocker: rightBlocker,
+                    options: opts
+                });
+            }
+            //The object is already a bctimer
+            else {
+                var data = $this.data("bctimerdata");
+                opts = $.extend({}, data.options, options);
+                data.options = opts;
+
+                clearInterval(data.interval);
+
+                leftBlocker = data.leftBlocker;
+                rightBlocker = data.rightBlocker;
+
+                leftBlocker.setColor(opts.colors[opts.colors.length - 1]);
+                rightBlocker.setColor(opts.colors[opts.colors.length - 1]);
+
+                $this.css("background-color", opts.colors[0]);
+            }
+
+            function rotate()
             {
-                rotationDegrees = rotationDegrees % 360;
-                leftBlocker.css("background-color", opts.colors[backgroundIndex]);
-                rightBlocker.css("background-color", opts.colors[backgroundIndex]);
-                backgroundIndex++;
-                if(backgroundIndex >= opts.colors.length)
+                if(rotationDegrees >= 360)
                 {
-                    backgroundIndex = 0;
+                    var spins = Math.floor(rotationDegrees/360) - 1; // -1 so the blocker colors are 1 behind
+                    rotationDegrees = rotationDegrees % 360;
+
+                    backgroundIndex += spins;
+                    backgroundIndex %= opts.colors.length;
+
+                    leftBlocker.setColor(opts.colors[backgroundIndex]);
+
+                    backgroundIndex++;
+                    backgroundIndex %= opts.colors.length;
+
+                    $this.css("background-color", opts.colors[backgroundIndex]);
                 }
-                $this.css("background-color", opts.colors[backgroundIndex]);
-                 
-                rotateTo(leftBlocker, 0);
-                rotateTo(rightBlocker, rotationDegrees);
-            }
-             
-            else if(rotationDegrees >= 180)
-            {
-                rotateTo(leftBlocker, rotationDegrees - 180);
-                rotateTo(rightBlocker, 0);
-                
-                rightBlocker.css("background-color", opts.colors[backgroundIndex]);
-            }
-            else
-            {
-                rotateTo(leftBlocker, 0);
-                rotateTo(rightBlocker, rotationDegrees);
-                //console.log(backgroundIndex);
-                if(backgroundIndex == 0)
+
+                if(rotationDegrees >= 180)
                 {
-                   rightBlocker.css("background-color", opts.colors[opts.colors.length - 1]);
+                    leftBlocker.rotateTo(rotationDegrees - 180);
+                    rightBlocker.rotateTo(0);
+
+                    rightBlocker.setColor(opts.colors[backgroundIndex]);
                 }
                 else
                 {
-                   rightBlocker.css("background-color", opts.colors[backgroundIndex - 1]);
+                    leftBlocker.rotateTo(0);
+                    rightBlocker.rotateTo(rotationDegrees);
+                    //console.log(backgroundIndex);
+                    if(backgroundIndex == 0)
+                    {
+                        rightBlocker.setColor(opts.colors[opts.colors.length - 1]);
+                    }
+                    else
+                    {
+                        rightBlocker.setColor(opts.colors[backgroundIndex - 1]);
+                    }
                 }
-            }             
-        }
-        
-        function radToDeg(rad)
-        {
-            return rad * 180 / Math.PI;
-        }
-        
-        /***************************************
-        * Implementation of modes
-        ***************************************/
-        
-        if(opts.mode === "spinner")
-        {
-            var step = 360 / (opts.cycleLength / opts.updateInterval);
-            function spin() {
-                rotationDegrees += step;
+            }
+
+            /***************************************
+             * Implementation of modes
+             ***************************************/
+
+            if (opts.mode === "spinner") {
+                var step = 360 / (opts.cycleLength / opts.updateInterval);
+
+                function spin() {
+                    rotationDegrees += step;
+                    rotate();
+                }
+
+                $this.data("bctimerdata").interval = setInterval(spin, opts.updateInterval);
+            }
+            else if (opts.mode === "manual") {
+                if (/deg/.test(opts.value)) {
+                    rotationDegrees = parseFloat(opts.value.replace("deg", ""));
+                }
+                else if (/rad/.test(opts.value)) {
+                    rotationDegrees = radToDeg(parseFloat(opts.value.replace("rad", "")));
+                }
+                else if (/%/.test(opts.value)) {
+                    rotationDegrees = 3.60 * parseFloat(opts.value.replace("%", ""));
+                }
+                else {
+                    console.error("Invalid 'value' provided: " + opts.value);
+                }
+
                 rotate();
             }
+        });
 
-            $this.data("interval", setInterval(spin, opts.updateInterval));
-        }
-        else if(opts.mode === "manual")
-        {
-            if(/deg/.test(opts.value))
-            {
-                rotationDegrees = parseFloat(opts.value.replace("deg", ""));
-            }
-            else if(/rad/.test(opts.value))
-            {
-                rotationDegrees = radToDeg(parseFloat(opts.value.replace("rad", "")));
-            }
-            else if(/%/.test(opts.value))
-            {
-                rotationDegrees = 3.60 * parseFloat(opts.value.replace("%", ""));
-            }
-            else
-            {
-                console.error("Invalid 'value' provided: " + opts.value); 
-            }
-
-            rotate();
-        }
-        
-        return $this;
-    }
+        return this;
+    };
           
     $.fn.bctimer.defaults = {
         mode: "spinner", // countdown(not implemented) | manual | spinner
@@ -166,4 +188,4 @@
         },
         center: "percentage", // degrees | radians | text:value | time*/
     }
-}(jQuery));
+}(jQuery, window, document, undefined));
