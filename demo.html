@@ -12,19 +12,60 @@
 </head>
 
 <body>
+  <p>
+      This plugin was made as a proof of concept. I had seen css used to create cool shapes and wanted to test if css transforms could be continuously applied to make semi-complex animations.
+      I got the idea from <a target="_blank" href="http://codepen.io/AtomicNoggin/pen/fEish">this codepen</a> and while fiddling with the css values I thought it would be cool to try and make it spin on its own.
+      The concept reminded me of the countdowns before old fashioned movies and I created this with the idea that it would be used as a countdown timer.
+      As I developed it I thought of additional uses, and have decided to implement those first, meaning that bctimer does not currently function as a timer.
+  </p>
+  <p>
+      I created this plugin with circles in mind, but in future iterations I am considering adding support for triangles, and squares.
+      I would also like to have support for 1-n rotating segments at any given time to create different effects.
+      I think it would be useful to allow for multiple different start orientations and spin directions.
+  </p>
+  <hr>
+  <p>This example represents the default functionality.</p>
   <div id="demo1"></div>
-  $('#demo1').bctimer();
+  <pre>$('#demo1').bctimer();</pre>
   <hr>
+  <p>This example uses an awful color pallete to demonstrate how colors can be cycled on both the main section, and the "donut" section. The cycle length of 500 means that a full rotation will occur every half second.</p>
   <div id="demo2"></div>
-  $('#demo2').bctimer({colors:['red','#000000','green','blue','#FFFFFF'], cycleLength: 500});
+  <pre>
+  $('#demo2').bctimer({
+      colors:['red','#000000','green','blue','#FFFFFF'],
+      cycleLength: 500,
+      donut: {
+          size:30,
+          colors: ["purple", "orange"]
+      }
+  });
+  </pre>
   <hr>
+  <p>The following example is larger than the default and is placed in manual mode. Once in a mode, it will stay in that mode until explicitly changed. This means that after creation you can modify individual values.</p>
   <div id="demo3"></div>
-  $('#demo3').bctimer({size:250, mode: "manual", value: "66%"});
-  <br>Or<br>
-  $('#demo3').bctimer({size:250, mode: "manual"}); $('#demo3').bctimer({value: "66%"});
+  <pre>
+  $('#demo3').bctimer({
+      size:250,
+      mode: "manual",
+      value: "66%",
+      donut: {
+          size: 100,
+          colors: ["white"]
+      }
+  });
+  </pre>
+  <p>Try inputting some of the following in the console:</p>
+  <pre>
+  $('#demo3').bctimer({ value: '120deg' });
+  $('#demo3').bctimer({ value: '3.14rad' });
+  $('#demo3').bctimer({ colors: ['blue', 'orange'] });
+  </pre>
   <hr>
+  <p>This last example shows how small one of these can be. It doesn't display perfectly, but considering that it is made up of spinning semi circles made with css it is pretty cool.</p>
   <div id="demo4"></div>
+  <pre>
   $('#demo4').bctimer({size:8});
+  </pre>
   <p>(IE11 struggles with this size, but in Chrome and Firefox it looks decent)</p>
   
 
@@ -33,8 +74,23 @@
   <script>
     $(document).ready(function() {
       $('#demo1').bctimer();
-      $('#demo2').bctimer({colors:['red','#000000','green','blue','#FFFFFF'], cycleLength: 500});
-      $('#demo3').bctimer({size:250, mode: "manual", value: "66%"});
+      $('#demo2').bctimer({
+          colors:['red','#000000','green','blue','#FFFFFF'],
+          cycleLength: 500,
+          donut: {
+              size:30,
+              colors: ["purple", "orange"]
+          }
+      });
+      $('#demo3').bctimer({
+          size:250,
+          mode: "manual",
+          value: "66%",
+          donut: {
+              size: 100,
+              colors: ["white"]
+          }
+      });
       $('#demo4').bctimer({size:8});
     });
   </script>

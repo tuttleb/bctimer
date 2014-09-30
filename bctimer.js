@@ -46,8 +46,10 @@
             var opts,
             leftBlocker,
             rightBlocker,
+            donut,
             rotationDegrees = 0,
-            backgroundIndex = 0;
+            backgroundIndex = 0,
+            donutIndex = 0;
 
             //This is the first time bctimer is being called on the object
             if (!$this.data("bctimerdata")) {
@@ -56,7 +58,7 @@
                     .css({
                         "width": opts.size,
                         "height": opts.size,
-                        "background-color": opts.colors[0]
+                        "background-color": opts.colors[backgroundIndex]
                     });
 
                 $this.css({
@@ -75,9 +77,25 @@
 
                 $this.append(leftBlocker.$element).append(rightBlocker.$element);
 
+                if(opts.donut)
+                {
+                    donut = $('<div>')
+                        .width(opts.donut.size)
+                        .height(opts.donut.size)
+                        .addClass("bctimer-donut")
+                        .css({
+                            "background-color": opts.donut.colors[donutIndex],
+                            "top": leftBlocker.$element.height() / 2 - opts.donut.size / 2 + "px",
+                            "left": leftBlocker.$element.height() / 2 - opts.donut.size / 2 + "px"
+                        });
+                    console.log(donut.css('top'));
+                    $this.append(donut);
+                }
+
                 $this.data("bctimerdata", {
                     leftBlocker: leftBlocker,
                     rightBlocker: rightBlocker,
+                    donut: donut,
                     options: opts
                 });
             }
@@ -91,6 +109,7 @@
 
                 leftBlocker = data.leftBlocker;
                 rightBlocker = data.rightBlocker;
+                donut = data.donut;
 
                 leftBlocker.setColor(opts.colors[opts.colors.length - 1]);
                 rightBlocker.setColor(opts.colors[opts.colors.length - 1]);
@@ -113,7 +132,11 @@
                     backgroundIndex++;
                     backgroundIndex %= opts.colors.length;
 
+                    donutIndex++;
+                    donutIndex %= opts.donut.colors.length;
+
                     $this.css("background-color", opts.colors[backgroundIndex]);
+                    donut.css("background-color", opts.donut.colors[donutIndex]);
                 }
 
                 if(rotationDegrees >= 180)
@@ -181,11 +204,10 @@
         updateInterval: 30, //milliseconds between each update
         cycleLength: 5000, //milliseconds for a complete rotation
         value: "0deg", //value used in manual mode. ex: "
-        /*
         donut: {
             size: 0,
-            color: "white",
+            colors: ["white"]
         },
-        center: "percentage", // degrees | radians | text:value | time*/
+        center: "percentage" // degrees | radians | text:value | time*/
     }
 }(jQuery, window, document, undefined));

@@ -2,6 +2,7 @@
     border: 2px solid black;
     position: relative;
     border-radius: 100000px;
+    overflow: hidden;
 }
 
 .bctimer-leftblocker {
@@ -20,4 +21,9 @@
     transform-origin: 0 50%;
     border-top-right-radius: 100000px;
     border-bottom-right-radius: 100000px;
+}
+
+.bctimer-donut {
+    position: absolute;
+    border-radius: 100000px;
 }
